@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "chesskhelo",
-    "platforms": ["android"],
+    "platforms": ["android", "web"],
     "android": {
       "package": "com.ayushcmd.chesskhelo",
       "adaptiveIcon": {
