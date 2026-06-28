@@ -7,6 +7,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChessBoard } from '../features/game/components/ChessBoard';
@@ -23,6 +24,7 @@ import { colors } from '../shared/theme/colors';
 import { spacing } from '../shared/theme/spacing';
 import { typography } from '../shared/theme/typography';
 import { APP_CONFIG } from '../shared/constants/appConfig';
+import { useGameSettings } from '../shared/hooks/useGameSettings';
 
 const { width } = Dimensions.get('window');
 const isDesktop = width > 768;
@@ -34,9 +36,10 @@ export default function GameScreen() {
   }>();
 
   const router = useRouter();
+  const { settings } = useGameSettings();
 
   const selectedDifficulty =
-    (difficulty as any) ?? APP_CONFIG.game.defaultDifficulty;
+    (difficulty as any) ?? settings.difficulty;
   const gameMode: GameMode = mode === 'friend' ? 'friend' : 'ai';
 
   const {
@@ -54,7 +57,7 @@ export default function GameScreen() {
     currentTurn,
   } = useChessEngine(gameMode, selectedDifficulty);
 
-  const timer = useTimer(APP_CONFIG.game.defaultTimer);
+  const timer = useTimer(settings.timerDuration);
   const captured = useCapturedPieces(chess);
   const moveHistory = useMoveHistory(chess);
 
@@ -99,6 +102,62 @@ export default function GameScreen() {
     if (gameMode === 'ai') chess.undo();
   };
 
+  const renderBoard = () => (
+    <>
+      <PlayerPanel
+        name={gameMode === 'ai' ? 'Stockfish AI' : 'Player 2'}
+        isAI={gameMode === 'ai'}
+        isActive={currentTurn === 'b'}
+        formattedTime={timer.formattedBlackTime}
+        capturedPieces={captured.blackCaptured}
+        advantage={captured.blackAdvantage}
+      />
+      <CapturedPieces
+        pieces={captured.blackCaptured}
+        advantage={captured.blackAdvantage}
+      />
+      <ChessBoard
+        chess={chess}
+        selectedSquare={selectedSquare}
+        legalMoves={legalMoves}
+        lastMove={lastMove}
+        checkedKing={checkedKing}
+        onSquarePress={handleSquarePress}
+      />
+      <CapturedPieces
+        pieces={captured.whiteCaptured}
+        advantage={captured.whiteAdvantage}
+      />
+      <PlayerPanel
+        name="You"
+        isActive={currentTurn === 'w'}
+        formattedTime={timer.formattedWhiteTime}
+        capturedPieces={captured.whiteCaptured}
+        advantage={captured.whiteAdvantage}
+      />
+    </>
+  );
+
+  const renderControls = () => (
+    <View style={styles.controlButtons}>
+      <TouchableOpacity
+        style={styles.controlBtn}
+        onPress={handleUndo}
+      >
+        <LucideIcon name="RotateCcw" size={16} color={colors.text.secondary} />
+        <Text style={styles.controlLabel}>Undo</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.controlBtn}
+        onPress={resetGame}
+      >
+        <LucideIcon name="RefreshCw" size={16} color={colors.text.secondary} />
+        <Text style={styles.controlLabel}>New Game</Text>
+      </TouchableOpacity>
+      <ResignButton onResign={handleResign} />
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
@@ -124,104 +183,30 @@ export default function GameScreen() {
         </View>
 
         {isDesktop ? (
-          <View style={styles.desktopLayout}>
+          <ScrollView
+            contentContainerStyle={styles.desktopLayout}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={styles.desktopBoard}>
-              <PlayerPanel
-                name={gameMode === 'ai' ? 'Stockfish AI' : 'Player 2'}
-                isAI={gameMode === 'ai'}
-                isActive={currentTurn === 'b'}
-                formattedTime={timer.formattedBlackTime}
-                capturedPieces={captured.blackCaptured}
-                advantage={captured.blackAdvantage}
-              />
-              <CapturedPieces
-                pieces={captured.blackCaptured}
-                advantage={captured.blackAdvantage}
-              />
-              <ChessBoard
-                chess={chess}
-                selectedSquare={selectedSquare}
-                legalMoves={legalMoves}
-                lastMove={lastMove}
-                checkedKing={checkedKing}
-                onSquarePress={handleSquarePress}
-              />
-              <CapturedPieces
-                pieces={captured.whiteCaptured}
-                advantage={captured.whiteAdvantage}
-              />
-              <PlayerPanel
-                name="You"
-                isActive={currentTurn === 'w'}
-                formattedTime={timer.formattedWhiteTime}
-                capturedPieces={captured.whiteCaptured}
-                advantage={captured.whiteAdvantage}
-              />
+              {renderBoard()}
             </View>
-
             <View style={styles.desktopControls}>
               <MoveHistoryDrawer
                 history={moveHistory.history}
                 totalMoves={moveHistory.totalMoves}
               />
-              <View style={styles.controlButtons}>
-                <TouchableOpacity style={styles.controlBtn} onPress={handleUndo}>
-                  <LucideIcon name="RotateCcw" size={16} color={colors.text.secondary} />
-                  <Text style={styles.controlLabel}>Undo</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.controlBtn} onPress={resetGame}>
-                  <LucideIcon name="RefreshCw" size={16} color={colors.text.secondary} />
-                  <Text style={styles.controlLabel}>New Game</Text>
-                </TouchableOpacity>
-                <ResignButton onResign={handleResign} />
-              </View>
+              {renderControls()}
             </View>
-          </View>
+          </ScrollView>
         ) : (
-          <View style={styles.mobileLayout}>
-            <PlayerPanel
-              name={gameMode === 'ai' ? 'Stockfish AI' : 'Player 2'}
-              isAI={gameMode === 'ai'}
-              isActive={currentTurn === 'b'}
-              formattedTime={timer.formattedBlackTime}
-              capturedPieces={captured.blackCaptured}
-              advantage={captured.blackAdvantage}
-            />
-            <CapturedPieces
-              pieces={captured.blackCaptured}
-              advantage={captured.blackAdvantage}
-            />
-            <ChessBoard
-              chess={chess}
-              selectedSquare={selectedSquare}
-              legalMoves={legalMoves}
-              lastMove={lastMove}
-              checkedKing={checkedKing}
-              onSquarePress={handleSquarePress}
-            />
-            <CapturedPieces
-              pieces={captured.whiteCaptured}
-              advantage={captured.whiteAdvantage}
-            />
-            <PlayerPanel
-              name="You"
-              isActive={currentTurn === 'w'}
-              formattedTime={timer.formattedWhiteTime}
-              capturedPieces={captured.whiteCaptured}
-              advantage={captured.whiteAdvantage}
-            />
-            <View style={styles.controlButtons}>
-              <TouchableOpacity style={styles.controlBtn} onPress={handleUndo}>
-                <LucideIcon name="RotateCcw" size={15} color={colors.text.secondary} />
-                <Text style={styles.controlLabel}>Undo</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.controlBtn} onPress={resetGame}>
-                <LucideIcon name="RefreshCw" size={15} color={colors.text.secondary} />
-                <Text style={styles.controlLabel}>New Game</Text>
-              </TouchableOpacity>
-              <ResignButton onResign={handleResign} />
-            </View>
-          </View>
+          <ScrollView
+            style={styles.mobileLayout}
+            contentContainerStyle={styles.mobileContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {renderBoard()}
+            {renderControls()}
+          </ScrollView>
         )}
 
         {/* Game Over Banner */}
@@ -300,11 +285,11 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   desktopLayout: {
-    flex: 1,
     flexDirection: 'row',
     gap: spacing.xl,
     alignItems: 'flex-start',
     justifyContent: 'center',
+    paddingBottom: spacing.xxl,
   },
   desktopBoard: {
     width: 480,
@@ -317,7 +302,10 @@ const styles = StyleSheet.create({
   },
   mobileLayout: {
     flex: 1,
+  },
+  mobileContent: {
     gap: spacing.sm,
+    paddingBottom: spacing.xxl,
   },
   controlButtons: {
     flexDirection: 'row',

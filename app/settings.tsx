@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { DifficultySelector } from '../features/settings/components/DifficultySelector';
 import { SoundToggle } from '../features/settings/components/SoundToggle';
 import { ThemeSelector } from '../features/settings/components/ThemeSelector';
-import { useSettings } from '../features/settings/hooks/useSettings';
+import { useGameSettings } from '../shared/hooks/useGameSettings';
 import { LucideIcon } from '../shared/components/LucideIcon';
 import { colors } from '../shared/theme/colors';
 import { spacing } from '../shared/theme/spacing';
@@ -27,12 +27,13 @@ export default function SettingsScreen() {
   const {
     settings,
     setDifficulty,
+    setTimerDuration,
     setBoardTheme,
     toggleMoveSound,
     toggleAmbience,
     toggleHints,
     resetSettings,
-  } = useSettings();
+  } = useGameSettings();
 
   return (
     <View style={styles.container}>
@@ -103,7 +104,7 @@ export default function SettingsScreen() {
                       styles.chip,
                       settings.timerDuration === time && styles.activeChip,
                     ]}
-                    onPress={() => {}}
+                    onPress={() => setTimerDuration(time)}
                     activeOpacity={0.75}
                   >
                     <Text
