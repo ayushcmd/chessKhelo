@@ -58,30 +58,40 @@ export default function GameScreen() {
   const captured = useCapturedPieces(chess);
   const moveHistory = useMoveHistory(chess);
 
-  // Start timer on first move
   useEffect(() => {
     if (chess.history().length === 1 && !timer.isRunning) {
       timer.start();
     }
   }, [chess.history().length]);
 
-  // Switch timer on turn change
   useEffect(() => {
     if (timer.isRunning) {
       timer.switchPlayer();
     }
   }, [currentTurn]);
 
-  // Pause timer on game over
   useEffect(() => {
     if (isGameOver) {
       timer.pause();
     }
   }, [isGameOver]);
 
+  const navigateToGameOver = (result: string, win: string) => {
+    router.push({
+      pathname: '/gameover',
+      params: {
+        gameResult: result,
+        winner: win,
+        totalMoves: String(moveHistory.totalMoves),
+        duration: timer.formattedWhiteTime,
+        capturedCount: String(captured.whiteCaptured.length),
+      },
+    });
+  };
+
   const handleResign = () => {
     timer.pause();
-    router.push('/gameover');
+    navigateToGameOver('resign', currentTurn === 'w' ? 'b' : 'w');
   };
 
   const handleUndo = () => {
@@ -114,11 +124,8 @@ export default function GameScreen() {
         </View>
 
         {isDesktop ? (
-          // Desktop layout
           <View style={styles.desktopLayout}>
-            {/* Left: Board */}
             <View style={styles.desktopBoard}>
-              {/* Opponent panel */}
               <PlayerPanel
                 name={gameMode === 'ai' ? 'Stockfish AI' : 'Player 2'}
                 isAI={gameMode === 'ai'}
@@ -152,7 +159,6 @@ export default function GameScreen() {
               />
             </View>
 
-            {/* Right: Controls */}
             <View style={styles.desktopControls}>
               <MoveHistoryDrawer
                 history={moveHistory.history}
@@ -172,7 +178,6 @@ export default function GameScreen() {
             </View>
           </View>
         ) : (
-          // Mobile layout
           <View style={styles.mobileLayout}>
             <PlayerPanel
               name={gameMode === 'ai' ? 'Stockfish AI' : 'Player 2'}
@@ -229,9 +234,25 @@ export default function GameScreen() {
                   : 'AI Wins!'
                 : 'Draw!'}
             </Text>
-            <TouchableOpacity onPress={resetGame} style={styles.playAgainBtn}>
-              <Text style={styles.playAgainText}>Play Again</Text>
-            </TouchableOpacity>
+            <View style={styles.gameOverButtons}>
+              <TouchableOpacity
+                onPress={resetGame}
+                style={styles.playAgainBtn}
+              >
+                <Text style={styles.playAgainText}>Play Again</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  navigateToGameOver(
+                    gameResult ?? 'draw',
+                    winner ?? ''
+                  )
+                }
+                style={styles.statsBtn}
+              >
+                <Text style={styles.statsBtnText}>View Stats</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
@@ -336,6 +357,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text.primary,
   },
+  gameOverButtons: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
   playAgainBtn: {
     backgroundColor: colors.green.dim,
     borderWidth: 1,
@@ -348,5 +373,18 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.md,
     fontWeight: '600',
     color: colors.green.primary,
+  },
+  statsBtn: {
+    backgroundColor: colors.glass.light,
+    borderWidth: 1,
+    borderColor: colors.glass.border,
+    borderRadius: spacing.borderRadius.md,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+  },
+  statsBtnText: {
+    fontSize: typography.sizes.md,
+    color: colors.text.secondary,
+    fontWeight: '500',
   },
 });
