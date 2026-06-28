@@ -4,6 +4,9 @@ import { Difficulty } from '../../../shared/constants/appConfig';
 import { makeMove, isValidMove, getCheckedKingSquare } from '../utils/moveValidator';
 import { getLegalMovesForSquare, isGameOver, getGameResult } from '../utils/boardHelpers';
 import { getBestMove, parseMoveString } from '../utils/stockfishBridge';
+import { useEffect as useEngineEffect } from 'react';
+import { stockfishEngine } from '../utils/stockfishWorker';
+import { Platform } from 'react-native';
 
 export type GameMode = 'ai' | 'friend';
 
@@ -31,7 +34,18 @@ export const useChessEngine = (mode: GameMode, difficulty: Difficulty) => {
     isAIThinking: false,
     lastMove: null,
   });
-
+  
+    useEngineEffect(() => {
+    if (Platform.OS === 'web') {
+      stockfishEngine.init();
+    }
+    return () => {
+      if (Platform.OS === 'web') {
+        stockfishEngine.terminate();
+      }
+    };
+  }, []);
+  
   const handleSquarePress = useCallback(
     async (square: Square) => {
       if (state.isGameOver || state.isAIThinking) return;

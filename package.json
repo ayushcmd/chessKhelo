@@ -20,7 +20,8 @@
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
     "react-native-svg": "^15.15.5",
-    "react-native-web": "^0.21.2"
+    "react-native-web": "^0.21.2",
+    "stockfish": "^18.0.8"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
