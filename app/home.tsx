@@ -12,6 +12,7 @@ import { useHomeNavigation } from '../features/home/hooks/useHomeNavigation';
 import { colors } from '../shared/theme/colors';
 import { spacing } from '../shared/theme/spacing';
 import { typography } from '../shared/theme/typography';
+import { BackgroundForest } from '../features/home/components/BackgroundForest';
 
 const { width } = Dimensions.get('window');
 const isDesktop = width > 768;
@@ -26,7 +27,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-
+       <BackgroundForest />
       <SafeAreaView style={styles.safeArea}>
 
         {/* Desktop: side by side layout */}
@@ -148,7 +149,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.bg.primary,
     alignItems: 'center',
     justifyContent: isDesktop ? 'center' : 'flex-start',
   },
