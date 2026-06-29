@@ -10,11 +10,31 @@
       "package": "com.ayushcmd.chesskhelo",
       "adaptiveIcon": {
         "backgroundColor": "#0b1f0e"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single",
+      "name": "chessKhelo",
+      "shortName": "Chess",
+      "description": "Premium chess app - Forest Edition",
+      "themeColor": "#0b1f0e",
+      "backgroundColor": "#060f07"
     },
     "plugins": [
       "expo-router",
       "expo-av"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "88a35501-2092-48e8-b854-956f71d0c03f"
+      }
+    }
   }
 }

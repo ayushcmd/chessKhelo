@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
     "chess.js": "^1.4.0",
     "expo": "~56.0.12",
     "expo-av": "^16.0.8",
