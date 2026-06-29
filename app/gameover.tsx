@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   Dimensions,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useProfile } from '../features/auth/hooks/useProfile';
+import { useAuth } from '../features/auth/hooks/useAuth';
 import { ResultModal } from '../features/gameover/components/ResultModal';
 import { RematchButton } from '../features/gameover/components/RematchButton';
 import { StatsDisplay } from '../features/gameover/components/StatsDisplay';
@@ -23,6 +25,8 @@ const isDesktop = width > 768;
 
 export default function GameOverScreen() {
   const router = useRouter();
+  const { saveGameResult } = useProfile();
+  const { isLoggedIn } = useAuth();
   const { gameResult, winner, totalMoves, duration, capturedCount } =
     useLocalSearchParams<{
       gameResult: string;
@@ -37,6 +41,21 @@ export default function GameOverScreen() {
     winner: (winner as 'w' | 'b') ?? null,
   });
 
+  useEffect(() => {
+    if (isLoggedIn && gameResult) {
+      saveGameResult({
+        result: gameResult === 'checkmate' && winner === 'w' ? 'win'
+          : gameResult === 'resign' ? 'resign'
+          : gameResult === 'checkmate' ? 'loss'
+          : 'draw',
+        opponent: 'Stockfish AI',
+        difficulty: 'hard',
+        total_moves: Number(totalMoves ?? 0),
+        duration: duration ?? '00:00',
+      });
+    }
+  }, []);
+
   const handleRematch = () => {
     router.push('/game?mode=ai');
   };
@@ -50,7 +69,6 @@ export default function GameOverScreen() {
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backBtn} onPress={handleHome}>
             <LucideIcon name="House" size={18} color={colors.text.secondary} />
@@ -59,7 +77,6 @@ export default function GameOverScreen() {
         </View>
 
         <View style={[styles.content, isDesktop && styles.desktopContent]}>
-          {/* Result card */}
           <View style={[styles.card, isDesktop && styles.desktopCard]}>
             <ResultModal
               title={title}
@@ -68,18 +85,13 @@ export default function GameOverScreen() {
               isWin={isWin}
               isDraw={isDraw}
             />
-
-            {/* Stats */}
             <StatsDisplay
               totalMoves={Number(totalMoves ?? 0)}
               duration={duration ?? '00:00'}
               capturedCount={Number(capturedCount ?? 0)}
             />
-
-            {/* Buttons */}
             <View style={styles.buttons}>
               <RematchButton onRematch={handleRematch} />
-
               <TouchableOpacity
                 style={styles.homeBtn}
                 onPress={handleHome}
@@ -91,7 +103,6 @@ export default function GameOverScreen() {
             </View>
           </View>
 
-          {/* Result message */}
           {isDesktop && (
             <View style={styles.desktopSide}>
               <Text style={styles.desktopQuote}>

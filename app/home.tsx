@@ -8,6 +8,7 @@ import {
   StatusBar,
   Dimensions,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useHomeNavigation } from '../features/home/hooks/useHomeNavigation';
 import { colors } from '../shared/theme/colors';
 import { spacing } from '../shared/theme/spacing';
@@ -18,6 +19,7 @@ const { width } = Dimensions.get('window');
 const isDesktop = width > 768;
 
 export default function HomeScreen() {
+  const router = useRouter();
   const {
     navigateToAIGame,
     navigateToFriendGame,
@@ -27,13 +29,11 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-       <BackgroundForest />
-      <SafeAreaView style={styles.safeArea}>
+      <BackgroundForest />
 
-        {/* Desktop: side by side layout */}
+      <SafeAreaView style={styles.safeArea}>
         {isDesktop ? (
           <View style={styles.desktopLayout}>
-            {/* Left: Logo */}
             <View style={styles.desktopLeft}>
               <Text style={styles.chessPiece}>♟</Text>
               <Text style={styles.appName}>CHESS</Text>
@@ -47,7 +47,6 @@ export default function HomeScreen() {
               </Text>
             </View>
 
-            {/* Right: Buttons */}
             <View style={styles.desktopRight}>
               <Text style={styles.desktopSubheading}>Choose your game</Text>
               <TouchableOpacity
@@ -78,7 +77,7 @@ export default function HomeScreen() {
                 <TouchableOpacity style={styles.card} onPress={navigateToSettings}>
                   <Text style={styles.cardLabel}>Settings</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.card} onPress={() => {}}>
+                <TouchableOpacity style={styles.card} onPress={() => router.push('/leaderboard')}>
                   <Text style={styles.cardLabel}>Leaderboard</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.card} onPress={() => {}}>
@@ -88,7 +87,6 @@ export default function HomeScreen() {
             </View>
           </View>
         ) : (
-          /* Mobile: stacked layout */
           <>
             <View style={styles.logoSection}>
               <Text style={styles.chessPiece}>♟</Text>
@@ -129,7 +127,7 @@ export default function HomeScreen() {
                 <TouchableOpacity style={styles.card} onPress={navigateToSettings}>
                   <Text style={styles.cardLabel}>Settings</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.card} onPress={() => {}}>
+                <TouchableOpacity style={styles.card} onPress={() => router.push('/leaderboard')}>
                   <Text style={styles.cardLabel}>Leaderboard</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.card} onPress={() => {}}>
@@ -160,8 +158,6 @@ const styles = StyleSheet.create({
     maxWidth: isDesktop ? 900 : 400,
     justifyContent: isDesktop ? 'center' : 'flex-start',
   },
-
-  // Desktop layout
   desktopLayout: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -188,8 +184,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: spacing.xs,
   },
-
-  // Mobile layout
   logoSection: {
     alignItems: 'center',
     marginTop: spacing.lg,
@@ -198,8 +192,6 @@ const styles = StyleSheet.create({
   buttonsSection: {
     gap: spacing.md,
   },
-
-  // Shared
   chessPiece: {
     fontSize: isDesktop ? 64 : 42,
     marginBottom: spacing.sm,
