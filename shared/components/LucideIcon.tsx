@@ -17,6 +17,11 @@ import {
   VolumeX,
   Brain,
   House,
+  Wifi,
+  WifiOff,
+  Copy,
+  Check,
+  Share2,
 } from 'lucide-react-native';
 import { colors } from '../theme/colors';
 
@@ -38,6 +43,11 @@ const ICONS: Record<string, any> = {
   VolumeX,
   Brain,
   House,
+  Wifi,
+  WifiOff,
+  Copy,
+  Check,
+  Share2,
 };
 
 interface LucideIconProps {
