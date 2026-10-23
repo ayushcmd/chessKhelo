@@ -158,3 +158,5 @@ eas.json
 .claude/
 CLAUDE.md
 AGENTS.md
+.vercel
+.env*
